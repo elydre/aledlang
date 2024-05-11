@@ -17,6 +17,7 @@ enum {
     KW_POP,
     KW_ROT,
     KW_DUP,
+    KW_DUP2,
 
     OP_ADD,
     OP_SUB,
@@ -100,6 +101,8 @@ uint32_t *aled_compile(char *src) {
             *ptr++ = KW_ROT;
         } else if (strcmp(tok, "DUP") == 0) {
             *ptr++ = KW_DUP;
+        } else if (strcmp(tok, "DUP2") == 0) {
+            *ptr++ = KW_DUP2;
         } else if (strcmp(tok, "+") == 0) {
             *ptr++ = OP_ADD;
         } else if (strcmp(tok, "-") == 0) {
@@ -161,6 +164,7 @@ const char *aled_get_kw(uint32_t kw) {
         case KW_POP: return "POP";
         case KW_ROT: return "ROT";
         case KW_DUP: return "DUP";
+        case KW_DUP2: return "DUP2";
         case OP_ADD: return "+";
         case OP_SUB: return "-";
         case OP_MUL: return "*";
@@ -220,10 +224,10 @@ void aled_run(uint32_t *code) {
         // print_code(code, ptr);
         switch (*ptr) {
             case KW_PRINT:
-                printf("%d\n", POP());
+                printf("\e[92m%d\e[0m\n", POP());
                 break;
             case KW_CPUT:
-                putchar(POP());
+                printf("\e[92m%c\e[0m", POP());
                 fflush(stdout);
                 break;
             case KW_JIF:
@@ -260,6 +264,15 @@ void aled_run(uint32_t *code) {
                     aled_run_error("stack underflow");
                 g_stack[g_spos] = g_stack[g_spos - 1];
                 g_spos++;
+                break;
+            case KW_DUP2:
+                if (g_spos < 2)
+                    aled_run_error("stack underflow");
+                if (g_spos >= STACK_SIZE - 2)
+                    aled_run_error("stack overflow");
+                g_stack[g_spos] = g_stack[g_spos - 2];
+                g_stack[g_spos + 1] = g_stack[g_spos - 1];
+                g_spos += 2;
                 break;
             case KW_ROT:
                 a = POP();
@@ -337,11 +350,19 @@ void aled_run(uint32_t *code) {
                 g_stack[g_spos++] = *ptr;
                 break;
         }
+        if (g_spos >= STACK_SIZE)
+            aled_run_error("stack overflow");
         // print_stack();
         // wait_enter();
         ptr++;
     }
 }
+/*
+for i in range(2, int(n**0.5) + 1):
+    if n % i == 0:
+        return False
+return True
+*/
 
 int main(void) {
     g_jmps = calloc(JMP_COUNT, sizeof(uint32_t));
@@ -349,8 +370,7 @@ int main(void) {
     g_stack = calloc(STACK_SIZE, sizeof(uint32_t));
     g_spos = 0;
 
-    uint32_t *code = aled_compile("0 (0) DUP PRINT 1 + DUP 10 < 0 JIF");
-    // uint32_t *code = aled_compile("'H' 'e' 'l' 'l' 'o' 10 ");
+    uint32_t *code = aled_compile("25 2 (0) DUP2 % 0 == 1 JIF 1 + DUP2 <= 2 JIF 0 GOTO 0 (1) 'D' CPUT ':' CPUT PRINT 3 GOTO (2) 'P' CPUT 10 CPUT (3)");
     aled_run(code);
 
     free(code);
