@@ -13,7 +13,6 @@ char **append_to_tokens(char **tokens, int *len, char *tok, int size) {
     char *tmp = malloc(size + 1);
     memcpy(tmp, tok, size);
     tmp[size] = '\0';
-    printf("append: %s\n", tmp);
     tokens[(*len)++] = tmp;
     return tokens;
 }
