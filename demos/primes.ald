@@ -3,7 +3,7 @@
 3
 
 (0)
-    DUP 0 SET 
+    DUP 0 SET
     3
     (1)
         DUP2 % 0 == 2 JIF
