@@ -15,6 +15,7 @@ aled_kw_t g_aled_kws[] = {
     {"POP",   KW_POP},
     {"SWAP",  KW_SWAP},
     {"SWAP3", KW_SWAP3},
+    {"ROT",   KW_ROT},
     {"DUP",   KW_DUP},
     {"DUP2",  KW_DUP2},
     {"+",     OP_ADD},

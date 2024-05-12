@@ -101,6 +101,14 @@ void aled_run(uint32_t *code, int debug) {
                 g_stack[g_spos - 1] = g_stack[g_spos - 3];
                 g_stack[g_spos - 3] = a;
                 break;
+            case KW_ROT:
+                if (g_spos < 2)
+                    break;
+                a = g_stack[g_spos - 1];
+                for (int i = g_spos - 1; i > 0; i--)
+                    g_stack[i] = g_stack[i - 1];
+                g_stack[0] = a;
+                break;
             case OP_ADD:
                 if (g_spos < 2)
                     aled_run_error(ptr, "Stack underflow");
@@ -230,6 +238,14 @@ void aled_run_fast(uint32_t *code) {
                 a = g_stack[g_spos - 1];
                 g_stack[g_spos - 1] = g_stack[g_spos - 3];
                 g_stack[g_spos - 3] = a;
+                break;
+            case KW_ROT:
+                if (g_spos < 2)
+                    break;
+                a = g_stack[g_spos - 1];
+                for (int i = g_spos - 1; i > 0; i--)
+                    g_stack[i] = g_stack[i - 1];
+                g_stack[0] = a;
                 break;
             case OP_ADD:
                 g_spos--;

@@ -11,6 +11,7 @@
 | `POP`   | `KW_POP`    | pop from stack            | `1 2    ` ` POP   ` `1`        (2 popped) |
 | `SWAP`  | `KW_SWAP`   | swap last two elements    | `1 2 3  ` ` SWAP  ` `1 3 2`               |
 | `SWAP3` | `KW_SWAP3`  | swap last three elements  | `1 2 3 4` ` SWAP3 ` `1 4 3 2`             |
+| `ROT`   | `KW_ROT`    | rotate all elements       | `1 2 3 4` ` ROT   ` `4 1 2 3`             |
 | `DUP`   | `KW_DUP`    | duplicate last element    | `1      ` ` DUP   ` `1 1`                 |
 | `DUP2`  | `KW_DUP2`   | duplicate last two        | `1 2    ` ` DUP2  ` `1 2 1 2`             |
 | `+`     | `OP_ADD`    | add last two elements     | `1 2    ` `  +    ` `3`                   |
