@@ -1,0 +1,5 @@
+0 1 (0)
+    DUP PRINT
+    DUP2 +
+    SWAP3 POP SWAP
+    0 GOTO
