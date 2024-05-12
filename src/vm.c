@@ -33,7 +33,7 @@ void aled_run(uint32_t *code, int debug) {
             print_code(ptr);
         switch (*ptr) {
             case KW_PRINT:
-                printf("\e[92m%d\e[0m\n", POP());
+                printf("\e[92m%u\e[0m\n", POP());
                 break;
             case KW_CPUT:
                 printf("\e[92m%c\e[0m", POP());
@@ -187,7 +187,7 @@ void aled_run_fast(uint32_t *code) {
     while (*ptr != UINT32_MAX) {
         switch (*ptr) {
             case KW_PRINT:
-                printf("\e[92m%d\e[0m\n", g_stack[--g_spos]);
+                printf("\e[92m%u\e[0m\n", g_stack[--g_spos]);
                 break;
             case KW_CPUT:
                 printf("\e[92m%c\e[0m", g_stack[--g_spos]);

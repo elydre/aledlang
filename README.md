@@ -4,7 +4,7 @@ Keywords:
 
 | Keyword | Internal    | Description               | Stack before, KW, Stack after           |
 |---------|-------------|---------------------------|-----------------------------------------|
-| `PRINT` | `KW_PRINT`  | print like `%d\n`         | `1 2` => `PRINT` => `1`     (2 printed) |
+| `PRINT` | `KW_PRINT`  | print like `%u\n`         | `1 2` => `PRINT` => `1`     (2 printed) |
 | `CPUT`  | `KW_CPUT`   | print like `%c`           | `1 65` => `CPUT` => `1`     (A printed) |
 | `JIF`   | `KW_JIF`    | jump to label if true     | `1 3 123` => `JIF` => `1` (jump to 123) |
 | `GOTO`  | `KW_GOTO`   | jump to label             | `1 123` => `GOTO` => `1`  (jump to 123) |
