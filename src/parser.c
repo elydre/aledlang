@@ -5,6 +5,31 @@
 
 #include "aledlang.h"
 
+aled_kw_t g_aled_kws[] = {
+    {"PRINT", KW_PRINT},
+    {"CPUT",  KW_CPUT},
+    {"JIF",   KW_JIF},
+    {"GOTO",  KW_GOTO},
+    {"SET",   KW_SET},
+    {"GET",   KW_GET},
+    {"POP",   KW_POP},
+    {"ROT",   KW_ROT},
+    {"DUP",   KW_DUP},
+    {"DUP2",  KW_DUP2},
+    {"+",     OP_ADD},
+    {"-",     OP_SUB},
+    {"*",     OP_MUL},
+    {"/",     OP_DIV},
+    {"%",     OP_MOD},
+    {"==",    OP_EQ},
+    {"!=",    OP_NEQ},
+    {">",     OP_GT},
+    {"<",     OP_LT},
+    {">=",    OP_GTE},
+    {"<=",    OP_LTE},
+    {NULL, 0},
+};
+
 uint32_t *aled_parse(char *src) {
     uint32_t *code = malloc(1024 * sizeof(uint32_t));
     uint32_t *ptr = code;
