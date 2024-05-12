@@ -18,6 +18,7 @@ typedef struct {
     int debug;
     int fast;
     const char *file;
+    const char *oneline;
 } aled_args_t;
 
 extern aled_kw_t g_aled_kws[];
@@ -64,6 +65,7 @@ uint32_t *aled_parse(char *src);
 
 // tools.c
 char *aled_read_file(const char *file);
+void raise_andexit(const char *fmt, ...);
 void wait_enter(void);
 
 void print_code(uint32_t *ptr);
@@ -73,6 +75,8 @@ const char *aled_get_kw(uint32_t kw);
 
 uint32_t atou_error(const char *str);
 uint32_t atos_error(const char *str);
+
+void aled_cleanup(void);
 
 
 // vm.c

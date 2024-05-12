@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "aledlang.h"
@@ -6,8 +7,7 @@
 char *aled_read_file(const char *file) {
     FILE *f = fopen(file, "r");
     if (!f) {
-        fprintf(stderr, "Error: could not open file: %s\n", file);
-        exit(1);
+        raise_andexit("Could not open file: %s", file);
     }
 
     fseek(f, 0, SEEK_END);
@@ -16,10 +16,9 @@ char *aled_read_file(const char *file) {
 
     char *buf = malloc(size + 1);
     if (!buf || fread(buf, 1, size, f) != size) {
-        fprintf(stderr, "Error: could not read file: %s\n", file);
         fclose(f);
         free(buf);
-        exit(1);
+        raise_andexit("Could not read file: %s", file);
     }
     buf[size] = '\0';
 
@@ -49,10 +48,16 @@ void print_code(uint32_t *ptr) {
 }
 
 void print_stack(void) {
+    if (!g_spos) {
+        printf("empty\n");
+        return;
+    }
+
+    printf("[ ");
     for (int i = 0; i < g_spos; i++) {
         printf("%d ", g_stack[i]);
     }
-    printf("\n");
+    printf("]\n");
 }
 
 const char *aled_get_kw(uint32_t kw) {
@@ -97,4 +102,22 @@ uint32_t atos_error(const char *str) {
         str++;
     }
     return val;
+}
+
+void aled_cleanup(void) {
+    free(g_stack);
+    free(g_jmps);
+    free(g_vals);
+    free(g_code);
+}
+
+void raise_andexit(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    fprintf(stderr, "AledLang: Error: ");
+    vfprintf(stderr, fmt, args);
+    fprintf(stderr, "\n");
+    va_end(args);
+    aled_cleanup();
+    exit(1);
 }

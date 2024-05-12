@@ -1,16 +1,29 @@
 #include <stdlib.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "aledlang.h"
 
-uint32_t aled_run_error(const char *msg) {
-    fprintf(stderr, "Error: %s\n", msg);
-    fprintf(stderr, "Stack: ");
+uint32_t aled_run_error(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+    fprintf(stderr, "AledLang: RunTime Error: ");
+    vfprintf(stderr, fmt, args);
+    
+    fprintf(stderr, "\n========================\n");
+    fprintf(stderr, "INSTRUCTION:\n  ");
+    print_code(g_code);
+    fprintf(stderr, "STACK:\n  ");
     print_stack();
+    fprintf(stderr, "========================\n");
+
+    aled_cleanup();
+    va_end(args);
     exit(1);
 }
 
-#define POP() (g_spos ? g_stack[--g_spos] : aled_run_error("stack underflow"))
+#define POP() (g_spos ? g_stack[--g_spos] : aled_run_error("Stack underflow"))
 
 void aled_run(uint32_t *code, int debug) {
     uint32_t *ptr = code;
@@ -38,20 +51,16 @@ void aled_run(uint32_t *code, int debug) {
             case KW_SET:
                 idx = POP();
                 val = POP();
-                if (idx >= VAL_COUNT) {
-                    fprintf(stderr, "Error: invalid index: %d\n", idx);
-                    exit(1);
-                }
+                if (idx >= VAL_COUNT)
+                    aled_run_error("Invalid index: %d", idx);
                 if (debug)
                     printf("SET: mem[%d] <= %d\n", idx, val);
                 g_vals[idx] = val;
                 break;
             case KW_GET:
                 idx = POP();
-                if (idx >= VAL_COUNT) {
-                    fprintf(stderr, "Error: invalid index: %d\n", idx);
-                    exit(1);
-                }
+                if (idx >= VAL_COUNT)
+                    aled_run_error("Invalid index: %d", idx);
                 if (debug)
                     printf("GET: mem[%d] => %d\n", idx, g_vals[idx]);
                 g_stack[g_spos++] = g_vals[idx];
@@ -61,15 +70,15 @@ void aled_run(uint32_t *code, int debug) {
                 break;
             case KW_DUP:
                 if (g_spos == 0)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos] = g_stack[g_spos - 1];
                 g_spos++;
                 break;
             case KW_DUP2:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 if (g_spos >= STACK_SIZE - 2)
-                    aled_run_error("stack overflow");
+                    aled_run_error("Stack overflow");
                 g_stack[g_spos] = g_stack[g_spos - 2];
                 g_stack[g_spos + 1] = g_stack[g_spos - 1];
                 g_spos += 2;
@@ -82,67 +91,67 @@ void aled_run(uint32_t *code, int debug) {
                 break;
             case OP_ADD:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] += g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_SUB:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] -= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_MUL:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] *= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_DIV:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] /= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_MOD:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] %= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_EQ:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] == g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_NEQ:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] != g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_GT:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] > g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_LT:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] < g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_GTE:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] >= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_LTE:
                 if (g_spos < 2)
-                    aled_run_error("stack underflow");
+                    aled_run_error("Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] <= g_stack[g_spos - 1];
                 g_spos--;
                 break;
@@ -151,7 +160,7 @@ void aled_run(uint32_t *code, int debug) {
                 break;
         }
         if (g_spos >= STACK_SIZE)
-            aled_run_error("stack overflow");
+            aled_run_error("Stack overflow");
         if (debug)
             print_stack();
         if (debug == 2)

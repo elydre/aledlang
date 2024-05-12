@@ -33,9 +33,8 @@ uint32_t *aled_parse(char *src) {
             else {
                 val = atos_error(tok);
                 if (val == UINT32_MAX) {
-                    fprintf(stderr, "Error: invalid token: %s\n", tok);
                     free(code);
-                    return NULL;
+                    raise_andexit("Invalid token: %s", tok);
                 }
                 g_jmps[val] = ptr - code;
             }

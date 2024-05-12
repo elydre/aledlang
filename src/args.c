@@ -5,9 +5,9 @@
 #include "aledlang.h"
 
 void aled_print_help(void) {
-    puts("AledLang " ALED_VERSION
-        "\nUsage: aled [options] [file]"
+    puts("Usage: aled [options] [file]"
         "\nOptions:"
+        "\n  -c   Execute code from next argument"
         "\n  -d   Debug, print info at each step"
         "\n  -f   Fast mode (segmentation fault on error)"
         "\n  -h   Print this help message"
@@ -21,23 +21,28 @@ aled_args_t aled_process_args(int argc, char **argv) {
     memset(&args, 0, sizeof(aled_args_t));
 
     if (argc < 1) {
-        fprintf(stderr, "Error: no arguments specified\n");
-        exit(1);
+        raise_andexit("No arguments specified");
     }
 
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] != '-') {
-            if (args.file) {
-                fprintf(stderr, "Error: multiple files specified\n");
-                exit(1);
-            }
+            if (args.file)
+                raise_andexit("Multiple files specified");
             args.file = argv[i];
             continue;
         }
 
         if (argv[i][1] == '-') {
-            fprintf(stderr, "Error: invalid option -- '%s'\n", argv[i] + 2);
-            exit(1);
+            raise_andexit("Invalid option -- '%s'", argv[i] + 2);
+        }
+
+        if (strcmp(argv[i], "-c") == 0) {
+            if (args.oneline)
+                raise_andexit("Multiple -c options specified");
+            if (i + 1 == argc)
+                raise_andexit("No code specified for -c");
+            args.oneline = argv[++i];
+            continue;
         }
 
         for (int j = 1; argv[i][j]; j++) {
@@ -59,8 +64,7 @@ aled_args_t aled_process_args(int argc, char **argv) {
                     puts("AledLang " ALED_VERSION);
                     exit(0);
                 default:
-                    fprintf(stderr, "Error: invalid option -- '%c'\n", argv[i][j]);
-                    exit(1);
+                    raise_andexit("Invalid option -- '%c'", argv[i][j]);
             }
         }
     }

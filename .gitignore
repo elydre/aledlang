@@ -1,3 +1,7 @@
+# test files
+test.ald
+
+# build files
 aledlang
 *.out
 *.o
