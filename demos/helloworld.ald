@@ -1,0 +1,31 @@
+'H' 'e' 'l' 'l' 'o' 32 'W' 'o' 'r' 'l' 'd' '!' 10 0
+
+ROT
+0 0 SET
+
+(0)
+    DUP 0 == 1 JIF
+    0 GET 1 + 0 SET
+    ROT
+    0 GOTO
+
+(1)
+0 GET 1 - 0 SET
+ROT
+
+(2)
+0 1 SET
+
+(3)
+    0 GET 1 GET <= 4 JIF
+    1 GET 1 + 1 SET
+    ROT
+    3 GOTO
+
+(4)
+    DUP 0 == 5 JIF
+    DUP CPUT
+    ROT
+    2 GOTO
+
+(5)
