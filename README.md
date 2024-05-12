@@ -25,3 +25,16 @@
 | `<`     | `OP_LT`     | compare last two elements | `1 2    ` `  <    ` `1`                   |
 | `>=`    | `OP_GTE`    | compare last two elements | `2 1    ` `  >=   ` `1`                   |
 | `<=`    | `OP_LTE`    | compare last two elements | `1 2    ` `  <=   ` `1`                   |
+
+## Extra features
+
+```
+123 [This is a comment] PRINT
+
+123 // This also is a comment
+PRINT
+
+"Hi!"
+[will be interpreted like]
+'H' 'i' '!' '0'
+```

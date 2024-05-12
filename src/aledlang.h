@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "0.3.1"
+#define ALED_VERSION "1.0.0"
 
 #define JMP_COUNT 1024
 #define VAL_COUNT 1024
@@ -28,6 +28,7 @@ extern uint32_t *g_vals;
 extern uint32_t *g_code;
 
 extern uint32_t *g_stack;
+extern char *g_src;
 extern int g_spos;
 
 enum {
@@ -59,6 +60,11 @@ enum {
 
 // args.c
 aled_args_t aled_process_args(int argc, char **argv);
+
+
+// lexer.c
+char **aled_lexe(char *src, int *len);
+void free_token(char **tokens);
 
 
 // parser.c

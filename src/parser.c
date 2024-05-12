@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <stdio.h>
 
 #include "aledlang.h"
@@ -33,18 +32,16 @@ aled_kw_t g_aled_kws[] = {
 };
 
 uint32_t *aled_parse(char *src) {
-    uint32_t *code = malloc(1024 * sizeof(uint32_t));
-    uint32_t *ptr = code;
-    uint32_t size = 1024;
+    uint32_t *code, *ptr;
+    char **tokens;
+    int len;
 
-    for (int i = 0; src[i]; i++) {
-        if (isspace(src[i])) {
-            src[i] = ' ';
-        }
-    }
+    tokens = aled_lexe(src, &len);
 
-    char *tok = strtok(src, " ");
-    while (tok) {
+    ptr = code = malloc((len + 1) * sizeof(uint32_t));
+
+    for (int i = 0; i < len; i++) {
+        char *tok = tokens[i];
         for (aled_kw_t *kw = g_aled_kws; kw->text; kw++) {
             if (strcmp(tok, kw->text))
                 continue;
@@ -52,32 +49,31 @@ uint32_t *aled_parse(char *src) {
             tok = NULL;
             break;
         }
-        
-        if (tok) {
-            uint32_t val = atou_error(tok);
-            if (val != UINT32_MAX)
-                *ptr++ = val;
-            else {
-                val = atos_error(tok);
-                if (val == UINT32_MAX) {
-                    free(code);
-                    raise_andexit("Invalid token: %s", tok);
-                }
-                if (g_jmps[val] != UINT32_MAX) {
-                    free(code);
-                    raise_andexit("Duplicate label: %s", tok);
-                }
-                g_jmps[val] = ptr - code;
+
+        if (!tok)
+            continue;
+        uint32_t val = atou_error(tok);
+        if (val != UINT32_MAX)
+            *ptr++ = val;
+        else {
+            val = atos_error(tok);
+            if (val == UINT32_MAX) {
+                fprintf(stderr, "AledLang: Error: Invalid token: %s\n", tok);
+                free_token(tokens);
+                free(code);
+                raise_andexit(NULL);
             }
+            if (g_jmps[val] != UINT32_MAX) {
+                fprintf(stderr, "AledLang: Error: Invalid token: %s\n", tok);
+                free_token(tokens);
+                free(code);
+                raise_andexit(NULL);
+            }
+            g_jmps[val] = ptr - code;
         }
-        if (ptr - code >= size) {
-            uint32_t offset = ptr - code;
-            size *= 2;
-            code = realloc(code, size * sizeof(uint32_t));
-            ptr = code + offset;
-        }
-        tok = strtok(NULL, " ");
     }
+
+    free_token(tokens);
 
     *ptr = UINT32_MAX;
     return code;

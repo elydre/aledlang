@@ -109,15 +109,18 @@ void aled_cleanup(void) {
     free(g_jmps);
     free(g_vals);
     free(g_code);
+    free(g_src);
 }
 
 void raise_andexit(const char *fmt, ...) {
     va_list args;
-    va_start(args, fmt);
-    fprintf(stderr, "AledLang: Error: ");
-    vfprintf(stderr, fmt, args);
-    fprintf(stderr, "\n");
-    va_end(args);
+    if (fmt) {
+        va_start(args, fmt);
+        fprintf(stderr, "AledLang: Error: ");
+        vfprintf(stderr, fmt, args);
+        fprintf(stderr, "\n");
+        va_end(args);
+    }
     aled_cleanup();
     exit(1);
 }

@@ -9,6 +9,7 @@ uint32_t *g_vals;
 uint32_t *g_code;
 
 uint32_t *g_stack;
+char *g_src;
 int g_spos;
 
 void aled_init(void) {
@@ -23,16 +24,16 @@ void aled_init(void) {
 }
 
 void aled_execute(aled_args_t *args) {
-    char *src;
 
     if (args->file) {
-        src = aled_read_file(args->file);
+        g_src = aled_read_file(args->file);
     } else {
-        src = strdup(args->oneline);
+        g_src = strdup(args->oneline);
     }
 
-    g_code = aled_parse(src);
-    free(src);
+    g_code = aled_parse(g_src);
+    free(g_src);
+    g_src = NULL;
 
     if (!g_code) {
         return;
