@@ -56,12 +56,14 @@ aled_args_t aled_process_args(int argc, char **argv) {
                     break;
                 case 'h':
                     aled_print_help();
+                    aled_cleanup();
                     exit(0);
                 case 's':
                     args.debug = 2;
                     break;
                 case 'v':
                     puts("AledLang " ALED_VERSION);
+                    aled_cleanup();
                     exit(0);
                 default:
                     raise_andexit("Invalid option -- '%c'", argv[i][j]);
