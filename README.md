@@ -1,7 +1,5 @@
 # AledLang
 
-Keywords:
-
 | Keyword | Internal    | Description               | Stack before, KW, Stack after           |
 |---------|-------------|---------------------------|-----------------------------------------|
 | `PRINT` | `KW_PRINT`  | print like `%u\n`         | `1 2` => `PRINT` => `1`     (2 printed) |
