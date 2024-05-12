@@ -61,6 +61,10 @@ uint32_t *aled_parse(char *src) {
                     free(code);
                     raise_andexit("Invalid token: %s", tok);
                 }
+                if (g_jmps[val] != UINT32_MAX) {
+                    free(code);
+                    raise_andexit("Duplicate label: %s", tok);
+                }
                 g_jmps[val] = ptr - code;
             }
         }

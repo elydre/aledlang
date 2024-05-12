@@ -12,9 +12,12 @@ uint32_t *g_stack;
 int g_spos;
 
 void aled_init(void) {
-    g_jmps = calloc(JMP_COUNT, sizeof(uint32_t));
     g_vals = calloc(VAL_COUNT, sizeof(uint32_t));
     g_stack = calloc(STACK_SIZE, sizeof(uint32_t));
+
+    g_jmps = malloc(JMP_COUNT * sizeof(uint32_t));
+    memset(g_jmps, UINT32_MAX, JMP_COUNT * sizeof(uint32_t));
+
     g_code = NULL;
     g_spos = 0;
 }

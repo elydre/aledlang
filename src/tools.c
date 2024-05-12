@@ -36,7 +36,7 @@ void print_code(uint32_t *ptr) {
 
     for (uint32_t *p = g_code; *p != UINT32_MAX; p++) {
         if (p == ptr)
-            fputs("\033[1;31m", stdout);
+            fputs("\033[31m", stdout);
         kw = aled_get_kw(*p);
         if (kw) printf("%s", kw);
         else printf("%d", *p);
