@@ -1,0 +1,6 @@
+0
+(0)
+    DUP PRINT
+    1 +
+    DUP 10 <
+    0 JIF

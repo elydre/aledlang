@@ -1,0 +1,26 @@
+2 PRINT 3 PRINT
+
+3
+
+(0)
+    DUP 0 SET 
+    3
+    (1)
+        DUP2 % 0 == 2 JIF
+        2 +
+        DUP DUP *
+        0 GET >
+        3 JIF
+        1 GOTO
+    (2)
+        POP
+        4 GOTO
+    (3)
+        POP DUP
+        PRINT
+    (4)
+        2 +
+        DUP
+        100
+        <=
+        0 JIF

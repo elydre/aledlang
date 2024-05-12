@@ -7,10 +7,10 @@ CFLAGS	= -Wall -Wextra -Werror -g
 NAME	= aledlang
 
 all:
-	$(CC) $(CFLAGS) -o $(NAME) $(NAME).c
+	$(CC) $(CFLAGS) -o $(NAME) src/*.c
 
 opti:
-	$(CC) $(CFLAGS) -O3 -o $(NAME) $(NAME).c
+	$(CC) $(CFLAGS) -O3 -o $(NAME) src/*.c
 
 clean:
 	$(RM) $(NAME)
