@@ -88,11 +88,18 @@ void aled_run(uint32_t *code, int debug) {
                 g_stack[g_spos + 1] = g_stack[g_spos - 1];
                 g_spos += 2;
                 break;
-            case KW_ROT:
+            case KW_SWAP:
                 a = POP();
                 b = POP();
                 g_stack[g_spos++] = a;
                 g_stack[g_spos++] = b;
+                break;
+            case KW_SWAP3:
+                if (g_spos < 3)
+                    aled_run_error(ptr, "Stack underflow");
+                a = g_stack[g_spos - 1];
+                g_stack[g_spos - 1] = g_stack[g_spos - 3];
+                g_stack[g_spos - 3] = a;
                 break;
             case OP_ADD:
                 if (g_spos < 2)
@@ -196,8 +203,8 @@ void aled_run_fast(uint32_t *code) {
                 ptr = code + g_jmps[g_stack[--g_spos]] - 1;
                 break;
             case KW_SET:
-                g_vals[g_stack[g_spos - 1]] = g_stack[g_spos - 2];
                 g_spos -= 2;
+                g_vals[g_stack[g_spos + 1]] = g_stack[g_spos];
                 break;
             case KW_GET:
                 g_stack[g_spos - 1] = g_vals[g_stack[g_spos - 1]];
@@ -214,54 +221,59 @@ void aled_run_fast(uint32_t *code) {
                 g_stack[g_spos + 1] = g_stack[g_spos - 1];
                 g_spos += 2;
                 break;
-            case KW_ROT:
+            case KW_SWAP:
                 a = g_stack[g_spos - 1];
                 g_stack[g_spos - 1] = g_stack[g_spos - 2];
                 g_stack[g_spos - 2] = a;
                 break;
+            case KW_SWAP3:
+                a = g_stack[g_spos - 1];
+                g_stack[g_spos - 1] = g_stack[g_spos - 3];
+                g_stack[g_spos - 3] = a;
+                break;
             case OP_ADD:
-                g_stack[g_spos - 2] += g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] += g_stack[g_spos];
                 break;
             case OP_SUB:
-                g_stack[g_spos - 2] -= g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] -= g_stack[g_spos];
                 break;
             case OP_MUL:
-                g_stack[g_spos - 2] *= g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] *= g_stack[g_spos];
                 break;
             case OP_DIV:
-                g_stack[g_spos - 2] /= g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] /= g_stack[g_spos];
                 break;
             case OP_MOD:
-                g_stack[g_spos - 2] %= g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] %= g_stack[g_spos];
                 break;
             case OP_EQ:
-                g_stack[g_spos - 2] = g_stack[g_spos - 2] == g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] = g_stack[g_spos - 1] == g_stack[g_spos];
                 break;
             case OP_NEQ:
-                g_stack[g_spos - 2] = g_stack[g_spos - 2] != g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] = g_stack[g_spos - 1] != g_stack[g_spos];
                 break;
             case OP_GT:
-                g_stack[g_spos - 2] = g_stack[g_spos - 2] > g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] = g_stack[g_spos - 1] > g_stack[g_spos];
                 break;
             case OP_LT:
-                g_stack[g_spos - 2] = g_stack[g_spos - 2] < g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] = g_stack[g_spos - 1] < g_stack[g_spos];
                 break;
             case OP_GTE:
-                g_stack[g_spos - 2] = g_stack[g_spos - 2] >= g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] = g_stack[g_spos - 1] >= g_stack[g_spos];
                 break;
             case OP_LTE:
-                g_stack[g_spos - 2] = g_stack[g_spos - 2] <= g_stack[g_spos - 1];
                 g_spos--;
+                g_stack[g_spos - 1] = g_stack[g_spos - 1] <= g_stack[g_spos];
                 break;
             default:
                 g_stack[g_spos++] = *ptr;

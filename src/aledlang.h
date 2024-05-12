@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "0.2.2"
+#define ALED_VERSION "0.2.3"
 
 #define JMP_COUNT 1024
 #define VAL_COUNT 1024
@@ -38,7 +38,8 @@ enum {
     KW_SET,
     KW_GET,
     KW_POP,
-    KW_ROT,
+    KW_SWAP,
+    KW_SWAP3,
     KW_DUP,
     KW_DUP2,
 
