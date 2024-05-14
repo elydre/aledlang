@@ -46,33 +46,35 @@ void aled_execute(aled_args_t *args) {
     }
 }
 
-void aled_start_shell(aled_args_t *args) {
+char *aled_read_line(void) {
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
 
-    while (1) {
-        printf("aled> ");
-        read = getline(&line, &len, stdin);
-        if (read == -1) {
-            putchar('\n');
-            break;
-        }
-        if (line[0] == '\n') {
-            continue;
-        }
-        g_code = aled_parse(line);
-        if (!g_code) {
-            continue;
-        }
-        aled_run(g_code, args->debug);
-        free(g_code);
+    read = getline(&line, &len, stdin);
+    if (read == -1) {
+        free(line);
+        return NULL;
     }
-    free(line);
-    g_code = NULL;
+    return line;
 }
 
+void aled_start_shell(aled_args_t *args) {
+    char *line = NULL;
 
+    while (1) {
+        printf("aled> ");
+        line = aled_read_line();
+        if (!line)
+            break;
+        g_code = aled_parse(line);
+        free(line);
+        if (!g_code)
+            continue;
+        aled_run(g_code, args->debug);
+    }
+    g_code = NULL;
+}
 
 int main(int argc, char **argv) {
     aled_args_t args;
