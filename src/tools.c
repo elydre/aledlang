@@ -104,6 +104,22 @@ uint32_t atos_error(const char *str) {
     return val;
 }
 
+char *aled_read_line(const char *prompt) {
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+
+    fputs(prompt, stdout);
+    fflush(stdout);
+
+    read = getline(&line, &len, stdin);
+    if (read == -1) {
+        free(line);
+        return NULL;
+    }
+    return line;
+}
+
 void aled_cleanup(void) {
     free(g_stack);
     free(g_jmps);

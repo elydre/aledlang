@@ -4,7 +4,7 @@
 
 #include "aledlang.h"
 
-uint32_t aled_run_error(uint32_t *ptr, const char *fmt, ...) {
+void aled_run_error(uint32_t *ptr, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
@@ -23,7 +23,7 @@ uint32_t aled_run_error(uint32_t *ptr, const char *fmt, ...) {
     exit(1);
 }
 
-#define POP() (g_spos ? g_stack[--g_spos] : aled_run_error(ptr, "Stack underflow"))
+#define POP() (g_spos ? g_stack[--g_spos] : (aled_run_error(ptr, "Stack underflow"), 0))
 
 void aled_run(uint32_t *code, int debug) {
     uint32_t *ptr = code;

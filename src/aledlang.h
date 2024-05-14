@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "1.0.0"
+#define ALED_VERSION "1.0.2"
 
 #define JMP_COUNT 1024
 #define VAL_COUNT 1024
@@ -74,6 +74,7 @@ uint32_t *aled_parse(char *src);
 // tools.c
 char *aled_read_file(const char *file);
 void raise_andexit(const char *fmt, ...);
+char *aled_read_line(const char *prompt);
 void wait_enter(void);
 
 void print_code(uint32_t *ptr);

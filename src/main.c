@@ -46,25 +46,11 @@ void aled_execute(aled_args_t *args) {
     }
 }
 
-char *aled_read_line(void) {
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
-
-    read = getline(&line, &len, stdin);
-    if (read == -1) {
-        free(line);
-        return NULL;
-    }
-    return line;
-}
-
 void aled_start_shell(aled_args_t *args) {
     char *line = NULL;
 
     while (1) {
-        printf("aled> ");
-        line = aled_read_line();
+        line = aled_read_line("aled> ");
         if (!line)
             break;
         g_code = aled_parse(line);

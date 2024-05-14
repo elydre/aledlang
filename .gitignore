@@ -3,6 +3,7 @@ test.ald
 
 # build files
 aledlang
+*.elf
 *.out
 *.o
 *.a
