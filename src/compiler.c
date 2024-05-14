@@ -22,8 +22,24 @@ aled_ass_t aled_to_asm[] = {
         "call printf\n"
         "addl $8, %esp"
     },
-    {KW_JIF, NULL},
-    {KW_GOTO, NULL},
+    {
+        KW_JIF, // TODO
+        "# KW_GOTO\n"
+        "popl %eax\n"
+        "movl $jump_table, %ebx\n"
+        "leal (%ebx, %eax, 4), %eax\n"
+        "movl (%eax), %eax\n"
+        "jmp *%eax"
+    },
+    {
+        KW_GOTO,
+        "# KW_GOTO\n"
+        "popl %eax\n"
+        "movl $jump_table, %ebx\n"
+        "leal (%ebx, %eax, 4), %eax\n"
+        "movl (%eax), %eax\n"
+        "jmp *%eax"
+    },
     {KW_SET, NULL},
     {KW_GET, NULL},
     {
@@ -91,30 +107,48 @@ void aled_compile(FILE *f, uint32_t *code) {
     uint32_t *ptr;
     int found;
 
-    fputs(
+    fprintf(f,
         ".section .data\n"
         "print_format:\n"
-        "  .asciz \"%u\\n\"\n"
+        "  .asciz \"%%u\\n\"\n"
         "cput_format:\n"
-        "  .asciz \"%c\"\n"
+        "  .asciz \"%%c\"\n"
+        "jump_table:\n"
+        "  .zero %u\n\n"
         ".section .text\n"
         ".globl main\n\n"
         "main:\n\n",
-        f
+        JMP_COUNT * 4
     );
 
+    for (int i = 0; i < JMP_COUNT; i++) {
+        if (g_jmps[i] == UINT32_MAX)
+            continue;
+        fprintf(f,
+            "# tab %u\n"
+            "movl $jmp%u, %%eax\n"
+            "movl $jump_table+%u, %%ebx\n"
+            "movl %%eax, (%%ebx)\n\n",
+            i, i, i * 4
+        );
+    }
+
     for (ptr = code ;*ptr != UINT32_MAX; ptr++) {
+        for (int i = 0; i < JMP_COUNT; i++) {
+            if (g_jmps[i] == (ptr - code)) {
+                fprintf(f, "jmp%u:\n", i);
+            }
+        }
         found = 0;
         for (int i = 0; aled_to_asm[i].kw; i++) {
-            if (aled_to_asm[i].kw != *ptr) {
+            if (aled_to_asm[i].kw != *ptr)
                 continue;
-            }
+            found = 1;
             if (aled_to_asm[i].asm_code == NULL) {
                 fprintf(stderr, "Warning: Unimplemented keyword %s\n", aled_get_kw(*ptr));
                 continue;
             }
             fprintf(f, "%s\n\n", aled_to_asm[i].asm_code);
-            found = 1;
             break;
         }
 
@@ -122,6 +156,12 @@ void aled_compile(FILE *f, uint32_t *code) {
             continue;
 
         fprintf(f, "# %u\npushl $%u\n\n", *ptr, *ptr);   
+    }
+
+    for (int i = 0; i < JMP_COUNT; i++) {
+        if (g_jmps[i] == (ptr - code)) {
+            fprintf(f, "jmp%u:\n", i);
+        }
     }
 
     fputs(

@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "1.1.0"
+#define ALED_VERSION "1.1.1"
 
-#define JMP_COUNT 1024
+#define JMP_COUNT 512
 #define VAL_COUNT 1024
 #define STACK_SIZE 1024
 
