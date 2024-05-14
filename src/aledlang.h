@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "1.0.2"
+#define ALED_VERSION "1.1.0"
 
 #define JMP_COUNT 1024
 #define VAL_COUNT 1024
@@ -17,6 +17,7 @@ typedef struct {
 typedef struct {
     int debug;
     int fast;
+    int compile;
     const char *file;
     const char *oneline;
 } aled_args_t;
@@ -61,6 +62,9 @@ enum {
 // args.c
 aled_args_t aled_process_args(int argc, char **argv);
 
+
+// compiler.c
+void aled_compile(FILE *f, uint32_t *code);
 
 // lexer.c
 char **aled_lexe(char *src, int *len);

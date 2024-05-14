@@ -24,7 +24,6 @@ void aled_init(void) {
 }
 
 void aled_execute(aled_args_t *args) {
-
     if (args->file) {
         g_src = aled_read_file(args->file);
     } else {
@@ -44,6 +43,20 @@ void aled_execute(aled_args_t *args) {
     } else {
         aled_run(g_code, args->debug);
     }
+}
+
+void aled_compile_call(aled_args_t *args) {
+    g_src = aled_read_file(args->file);
+
+    g_code = aled_parse(g_src);
+    free(g_src);
+    g_src = NULL;
+
+    if (!g_code) {
+        return;
+    }
+
+    aled_compile(stdout, g_code);
 }
 
 void aled_start_shell(aled_args_t *args) {
@@ -74,10 +87,16 @@ int main(int argc, char **argv) {
     }
 
     if (args.file && args.oneline) {
-        raise_andexit("Cannot use file and -c options together");
+        raise_andexit("Cannot use file and -e options together");
     }
 
-    if (!args.file && !args.oneline) {
+    if (!args.file && args.compile) {
+        raise_andexit("Cannot use -c without a file");
+    }
+
+    if (args.compile) {
+        aled_compile_call(&args);
+    } else if (!args.file && !args.oneline) {
         aled_start_shell(&args);
     } else {
         aled_execute(&args);

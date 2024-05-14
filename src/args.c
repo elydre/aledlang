@@ -7,7 +7,8 @@
 void aled_print_help(void) {
     puts("Usage: aled [options] [file]"
         "\nOptions:"
-        "\n  -c   Execute code from next argument"
+        "\n  -c   Compile to gnu asm i386"
+        "\n  -e   Execute code from next argument"
         "\n  -d   Debug, print info at each step"
         "\n  -f   Fast mode (segmentation fault on error)"
         "\n  -h   Print this help message"
@@ -36,7 +37,7 @@ aled_args_t aled_process_args(int argc, char **argv) {
             raise_andexit("Invalid option -- '%s'", argv[i] + 2);
         }
 
-        if (strcmp(argv[i], "-c") == 0) {
+        if (strcmp(argv[i], "-e") == 0) {
             if (args.oneline)
                 raise_andexit("Multiple -c options specified");
             if (i + 1 == argc)
@@ -53,6 +54,9 @@ aled_args_t aled_process_args(int argc, char **argv) {
                     break;
                 case 'f':
                     args.fast = 1;
+                    break;
+                case 'c':
+                    args.compile = 1;
                     break;
                 case 'h':
                     aled_print_help();
