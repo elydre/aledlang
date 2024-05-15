@@ -59,11 +59,11 @@ aled_args_t aled_process_args(int argc, char **argv) {
                     args.fast = 1;
                     break;
                 case 'c':
-                    args.compile = 1;
+                    args.compile |= 1;
                     break;
 #ifdef ENABLE_BIN
                 case 'b':
-                    args.compile = 2;
+                    args.compile |= 2;
                     break;
 #endif
                 case 'h':

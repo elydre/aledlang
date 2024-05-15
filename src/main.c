@@ -61,10 +61,14 @@ void aled_compile_call(aled_args_t *args) {
         return;
     }
 
-    if (args->compile == 1) {
+    if (args->compile & 1) {
         aled_compile(stdout, g_code);
+    }
+
+    if (!(args->compile & 2)) {
         return;
     }
+
 #ifdef ENABLE_BIN
     // create a temporary file to store the assembly code
     char *tmpfile = strdup("/tmp/aled-XXXXXX.s");
