@@ -7,6 +7,9 @@
 void aled_print_help(void) {
     puts("Usage: aled [options] [file]"
         "\nOptions:"
+#ifdef ENABLE_BIN
+        "\n  -b   Compile to elf i386 (requires gcc)"
+#endif
         "\n  -c   Compile to gnu asm i386"
         "\n  -e   Execute code from next argument"
         "\n  -d   Debug, print info at each step"
@@ -58,6 +61,11 @@ aled_args_t aled_process_args(int argc, char **argv) {
                 case 'c':
                     args.compile = 1;
                     break;
+#ifdef ENABLE_BIN
+                case 'b':
+                    args.compile = 2;
+                    break;
+#endif
                 case 'h':
                     aled_print_help();
                     aled_cleanup();

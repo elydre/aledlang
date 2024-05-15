@@ -70,7 +70,10 @@ aled_ass_t aled_to_asm[] = {
         "movl %eax, 0(%esp)\n"
         "movl %ebx, 8(%esp)"
     },
-    {KW_ROT, NULL},
+    {   KW_ROT,
+        "# KW_ROT\n"
+        "call rot_stack\n"    
+    },
     {
         KW_DUP,
         "# KW_DUP\n"
@@ -245,7 +248,9 @@ void aled_compile(FILE *f, uint32_t *code) {
         "print_format:\n"
         "  .asciz \"%u\\n\"\n"
         "cput_format:\n"
-        "  .asciz \"%c\"\n",
+        "  .asciz \"%c\"\n"
+        "stack_base:\n"
+        "  .int 0\n\n",
         f
     );
 
@@ -268,7 +273,9 @@ void aled_compile(FILE *f, uint32_t *code) {
     fputs(
         ".section .text\n"
         ".globl main\n\n"
-        "main:\n\n",
+        "main:\n\n"
+        "  # init stack base\n"
+        "  movl %esp, stack_base\n\n",
         f
     );
 
@@ -326,7 +333,19 @@ void aled_compile(FILE *f, uint32_t *code) {
     fputs(
         "# call exit\n"
         "pushl $0\n"
-        "call exit\n",
+        "call exit\n"
+        "rot_stack:\n"
+        "  movl 4(%esp), %ebx\n"
+        "  movl stack_base, %eax\n"
+        "  subl $4, %eax\n"
+        "rot_loop:\n"
+        "  movl (%eax), %ecx\n"
+        "  movl %ebx, (%eax)\n"
+        "  movl %ecx, %ebx\n"
+        "  subl $4, %eax\n"
+        "  cmpl %esp, %eax\n"
+        "  jne rot_loop\n"
+        "  ret\n",
         f
     );
 }

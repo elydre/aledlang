@@ -4,6 +4,11 @@
 
 #include "aledlang.h"
 
+#ifdef ENABLE_BIN
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
+
 uint32_t *g_jmps;
 uint32_t *g_vals;
 uint32_t *g_code;
@@ -56,7 +61,36 @@ void aled_compile_call(aled_args_t *args) {
         return;
     }
 
-    aled_compile(stdout, g_code);
+    if (args->compile == 1) {
+        aled_compile(stdout, g_code);
+        return;
+    }
+#ifdef ENABLE_BIN
+    // create a temporary file to store the assembly code
+    char *tmpfile = strdup("/tmp/aled-XXXXXX.s");
+    mkstemp(tmpfile);
+
+    FILE *f = fopen(tmpfile, "w");
+    if (!f) {
+        raise_andexit("Failed to create temporary file");
+    }
+
+    aled_compile(f, g_code);
+    fclose(f);
+
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        execlp("gcc", "gcc", "-m32", "-no-pie", tmpfile, NULL);
+        raise_andexit("execlp() failed");
+    }
+
+    waitpid(pid, NULL, 0);
+    remove(tmpfile);
+    free(tmpfile);
+#else
+    raise_andexit("Binary compilation is disabled");
+#endif
 }
 
 void aled_start_shell(aled_args_t *args) {
@@ -91,7 +125,7 @@ int main(int argc, char **argv) {
     }
 
     if (!args.file && args.compile) {
-        raise_andexit("Cannot use -c without a file");
+        raise_andexit("Cannot use -c/-b without a file");
     }
 
     if (args.compile) {

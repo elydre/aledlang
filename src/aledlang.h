@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "1.2.1"
+#define ALED_VERSION "2.0.0"
 
 #define JMP_COUNT 512
 #define VAL_COUNT 512
 #define STACK_SIZE 1024 // don't change compiled output
+
+#define ENABLE_BIN // enable -b (use gcc to compile asm -> elf)
 
 typedef struct {
     const char *text;
