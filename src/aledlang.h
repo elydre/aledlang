@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "1.1.1"
+#define ALED_VERSION "1.2.0"
 
 #define JMP_COUNT 512
 #define VAL_COUNT 1024

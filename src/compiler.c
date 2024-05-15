@@ -55,12 +55,19 @@ aled_ass_t aled_to_asm[] = {
         "pushl %eax\n"
         "pushl %ebx"
     },
-    {KW_SWAP3, NULL},
+    {
+        KW_SWAP3,
+        "# KW_SWAP3\n"
+        "movl 8(%esp), %eax\n"
+        "movl 0(%esp), %ebx\n"
+        "movl %eax, 0(%esp)\n"
+        "movl %ebx, 8(%esp)"
+    },
     {KW_ROT, NULL},
     {
         KW_DUP,
         "# KW_DUP\n"
-        "pushl 0(%esp)"
+        "pushl (%esp)"
     },
     {
         KW_DUP2,
@@ -92,14 +99,90 @@ aled_ass_t aled_to_asm[] = {
         "imul %eax, %ebx\n"
         "pushl %ebx"
     },
-    {OP_DIV, NULL},
-    {OP_MOD, NULL},
-    {OP_EQ, NULL},
-    {OP_NEQ, NULL},
-    {OP_GT, NULL},
-    {OP_LT, NULL},
-    {OP_GTE, NULL},
-    {OP_LTE, NULL},
+    {
+        OP_DIV,
+        "# OP_DIV\n"
+        "popl %ebx\n"
+        "popl %eax\n"
+        "cltd\n" // sign extend eax to edx:eax
+        "idiv %ebx\n"
+        "pushl %eax"
+    },
+    {
+        OP_MOD,
+        "# OP_MOD\n"
+        "popl %ebx\n"
+        "popl %eax\n"
+        "cltd\n" // sign extend eax to edx:eax
+        "idiv %ebx\n"
+        "pushl %edx"
+    },
+    {
+        OP_EQ,
+        "# OP_EQ\n"
+        "popl %eax\n"
+        "popl %ebx\n"
+        "cmpl %ebx, %eax\n"
+        "movl $0, %ecx\n"
+        "movl $1, %edx\n"
+        "cmove %edx, %ecx\n"
+        "pushl %ecx"
+    },
+    {
+        OP_NEQ,
+        "# OP_NEQ\n"
+        "popl %eax\n"
+        "popl %ebx\n"
+        "cmpl %ebx, %eax\n"
+        "movl $0, %ecx\n"
+        "movl $1, %edx\n"
+        "cmovne %edx, %ecx\n"
+        "pushl %ecx"
+    },
+    {
+        OP_GT,
+        "# OP_GT\n"
+        "popl %eax\n"
+        "popl %ebx\n"
+        "cmpl %ebx, %eax\n"
+        "movl $0, %ecx\n"
+        "movl $1, %edx\n"
+        "cmovl %edx, %ecx\n"
+        "pushl %ecx"
+    },
+    {
+        OP_LT,
+        "# OP_LT\n"
+        "popl %eax\n"
+        "popl %ebx\n"
+        "cmpl %ebx, %eax\n"
+        "movl $0, %ecx\n"
+        "movl $1, %edx\n"
+        "cmovg %edx, %ecx\n"
+        "pushl %ecx"
+    },
+    {
+        OP_GTE,
+        "# OP_GTE\n"
+        "popl %eax\n"
+        "popl %ebx\n"
+        "cmpl %ebx, %eax\n"
+        "movl $0, %ecx\n"
+        "movl $1, %edx\n"
+        "cmovle %edx, %ecx\n"
+        "pushl %ecx"
+    },
+    {
+        OP_LTE,
+        "# OP_LTE\n"
+        "popl %eax\n"
+        "popl %ebx\n"
+        "cmpl %ebx, %eax\n"
+        "movl $0, %ecx\n"
+        "movl $1, %edx\n"
+        "cmovge %edx, %ecx\n"
+        "pushl %ecx"
+    },
     {0, NULL}
 };
 
@@ -154,6 +237,22 @@ void aled_compile(FILE *f, uint32_t *code) {
 
         if (found)
             continue;
+
+        if (ptr[1] == KW_GOTO) {
+            fprintf(f, "# KW_GOTO (fast)\n"
+                "jmp jmp%u\n\n", *ptr);
+            ptr++;
+            continue;
+        }
+
+        if (ptr[1] == KW_JIF) {
+            fprintf(f, "# KW_JIF (fast)\n"
+                "popl %%eax\n"
+                "test %%eax, %%eax\n"
+                "jnz jmp%u\n\n", *ptr);
+            ptr++;
+            continue;
+        }
 
         fprintf(f, "# %u\npushl $%u\n\n", *ptr, *ptr);   
     }
