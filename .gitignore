@@ -1,10 +1,10 @@
 # test files
 test.ald
-test.s
 
 # build files
 aledlang
 *.elf
 *.out
+*.s
 *.o
 *.a
