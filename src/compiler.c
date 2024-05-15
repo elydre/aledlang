@@ -22,15 +22,7 @@ aled_ass_t aled_to_asm[] = {
         "call printf\n"
         "addl $8, %esp"
     },
-    {
-        KW_JIF, // TODO
-        "# KW_GOTO\n"
-        "popl %eax\n"
-        "movl $jump_table, %ebx\n"
-        "leal (%ebx, %eax, 4), %eax\n"
-        "movl (%eax), %eax\n"
-        "jmp *%eax"
-    },
+    {KW_JIF, NULL},
     {
         KW_GOTO,
         "# KW_GOTO\n"
@@ -40,8 +32,23 @@ aled_ass_t aled_to_asm[] = {
         "movl (%eax), %eax\n"
         "jmp *%eax"
     },
-    {KW_SET, NULL},
-    {KW_GET, NULL},
+    {
+        KW_SET,
+        "# KW_SET\n"
+        "popl %eax\n"
+        "popl %ecx\n"
+        "movl $val_table, %ebx\n"
+        "leal (%ebx, %eax, 4), %eax\n"
+        "movl %ecx, (%eax)"
+    },
+    {
+        KW_GET,
+        "# KW_GET\n"
+        "popl %eax\n"
+        "movl $val_table, %ebx\n"
+        "leal (%ebx, %eax, 4), %eax\n"
+        "pushl (%eax)"
+    },
     {
         KW_POP,
         "# KW_POP\n"
@@ -104,7 +111,7 @@ aled_ass_t aled_to_asm[] = {
         "# OP_DIV\n"
         "popl %ebx\n"
         "popl %eax\n"
-        "cltd\n" // sign extend eax to edx:eax
+        "cltd\n"
         "idiv %ebx\n"
         "pushl %eax"
     },
@@ -113,7 +120,7 @@ aled_ass_t aled_to_asm[] = {
         "# OP_MOD\n"
         "popl %ebx\n"
         "popl %eax\n"
-        "cltd\n" // sign extend eax to edx:eax
+        "cltd\n"
         "idiv %ebx\n"
         "pushl %edx"
     },
@@ -186,34 +193,87 @@ aled_ass_t aled_to_asm[] = {
     {0, NULL}
 };
 
-void aled_compile(FILE *f, uint32_t *code) {
-    uint32_t *ptr;
-    int found;
+int does_need_jmp_table(uint32_t *code) {
+    for (uint32_t *ptr = code; *ptr != UINT32_MAX; ptr++) {
+        if (*ptr < FIRST_KW) {
+            ptr++;
+            if (*ptr == UINT32_MAX)
+                break;
+            continue;
+        }
+        if (*ptr == KW_GOTO)
+            return 1;
+        if (*ptr == KW_JIF)
+            return 1;
+    }
+    return 0;
+}
 
-    fprintf(f,
-        ".section .data\n"
-        "print_format:\n"
-        "  .asciz \"%%u\\n\"\n"
-        "cput_format:\n"
-        "  .asciz \"%%c\"\n"
-        "jump_table:\n"
-        "  .zero %u\n\n"
-        ".section .text\n"
-        ".globl main\n\n"
-        "main:\n\n",
-        JMP_COUNT * 4
-    );
+int does_need_val_table(uint32_t *code) {
+    for (uint32_t *ptr = code; *ptr != UINT32_MAX; ptr++) {
+        if (*ptr == KW_SET)
+            return 1;
+        if (*ptr == KW_GET)
+            return 1;
+    }
+    return 0;
+}
+
+void add_jmp_init(FILE *f) {
+    fputs("# init jump table\n\n", f);
 
     for (int i = 0; i < JMP_COUNT; i++) {
         if (g_jmps[i] == UINT32_MAX)
             continue;
         fprintf(f,
-            "# tab %u\n"
             "movl $jmp%u, %%eax\n"
             "movl $jump_table+%u, %%ebx\n"
             "movl %%eax, (%%ebx)\n\n",
-            i, i, i * 4
+            i, i * 4
         );
+    }
+}
+
+void aled_compile(FILE *f, uint32_t *code) {
+    uint32_t *ptr;
+    int found;
+
+    int need_jmp_table = does_need_jmp_table(code);
+
+    fputs(
+        ".section .data\n"
+        "print_format:\n"
+        "  .asciz \"%u\\n\"\n"
+        "cput_format:\n"
+        "  .asciz \"%c\"\n",
+        f
+    );
+
+    if (need_jmp_table) {
+        fprintf(f,
+            "jump_table:\n"
+            "  .zero %u\n\n",
+            JMP_COUNT * 4
+        );
+    }
+
+    if (does_need_val_table(code)) {
+        fprintf(f,
+            "val_table:\n"
+            "  .zero %u\n\n",
+            VAL_COUNT * 4
+        );
+    }
+
+    fputs(
+        ".section .text\n"
+        ".globl main\n\n"
+        "main:\n\n",
+        f
+    );
+
+    if (need_jmp_table) {
+        add_jmp_init(f);
     }
 
     for (ptr = code ;*ptr != UINT32_MAX; ptr++) {
@@ -254,7 +314,7 @@ void aled_compile(FILE *f, uint32_t *code) {
             continue;
         }
 
-        fprintf(f, "# %u\npushl $%u\n\n", *ptr, *ptr);   
+        fprintf(f, "# PUSH %u\npushl $%u\n\n", *ptr, *ptr);   
     }
 
     for (int i = 0; i < JMP_COUNT; i++) {

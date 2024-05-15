@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "1.2.0"
+#define ALED_VERSION "1.2.1"
 
 #define JMP_COUNT 512
-#define VAL_COUNT 1024
-#define STACK_SIZE 1024
+#define VAL_COUNT 512
+#define STACK_SIZE 1024 // don't change compiled output
 
 typedef struct {
     const char *text;
@@ -32,8 +32,10 @@ extern uint32_t *g_stack;
 extern char *g_src;
 extern int g_spos;
 
+#define FIRST_KW (UINT32_MAX - 64)
+
 enum {
-    KW_PRINT = (UINT32_MAX - 64),
+    KW_PRINT = FIRST_KW,
     KW_CPUT,
     KW_JIF,
     KW_GOTO,
