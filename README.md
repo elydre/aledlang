@@ -7,7 +7,7 @@ This language is so difficult to use that programming an AledLang
 interpertor is simpler than making a hello world with it... Aled is
 the contraction of "à l'aide" in French which means "help" / "help me" 📣
 
-Originally 🕰, it is interpreted but a compiler for x86 in 32bit is now
+Originally 🧭, it is interpreted but a compiler for x86 in 32bit is now
 functional (it generates GNU assembly files and not directly .elf files).
 
 ## Compiler Features
