@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "2.0.0"
+#define ALED_VERSION "2.0.2"
 
 #define JMP_COUNT 512
 #define VAL_COUNT 512
@@ -95,6 +95,11 @@ uint32_t atos_error(const char *str);
 
 void aled_cleanup(void);
 
+#ifdef ENABLE_BIN
+char *new_temp_file(const char *prefix);
+char *del_temp_file(char *file);
+int exec_cmd(char **cmd);
+#endif
 
 // vm.c
 void aled_run(uint32_t *code, int debug);

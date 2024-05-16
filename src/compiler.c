@@ -9,7 +9,7 @@ typedef struct {
 
 aled_ass_t aled_to_asm[] = {
     {
-        KW_PRINT, 
+        KW_PRINT,
         "# KW_PRINT\n"
         "pushl $print_format\n"
         "call printf\n"
@@ -72,7 +72,7 @@ aled_ass_t aled_to_asm[] = {
     },
     {   KW_ROT,
         "# KW_ROT\n"
-        "call rot_stack\n"    
+        "call rot_stack"
     },
     {
         KW_DUP,
@@ -321,7 +321,7 @@ void aled_compile(FILE *f, uint32_t *code) {
             continue;
         }
 
-        fprintf(f, "# PUSH %u\npushl $%u\n\n", *ptr, *ptr);   
+        fprintf(f, "# PUSH %u\npushl $%u\n\n", *ptr, *ptr);
     }
 
     for (int i = 0; i < JMP_COUNT; i++) {
@@ -333,7 +333,7 @@ void aled_compile(FILE *f, uint32_t *code) {
     fputs(
         "# call exit\n"
         "pushl $0\n"
-        "call exit\n"
+        "call exit\n\n"
         "rot_stack:\n"
         "  movl 4(%esp), %ebx\n"
         "  movl stack_base, %eax\n"

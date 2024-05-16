@@ -4,11 +4,6 @@
 
 #include "aledlang.h"
 
-#ifdef ENABLE_BIN
-#include <sys/wait.h>
-#include <unistd.h>
-#endif
-
 uint32_t *g_jmps;
 uint32_t *g_vals;
 uint32_t *g_code;
@@ -71,10 +66,11 @@ void aled_compile_call(aled_args_t *args) {
 
 #ifdef ENABLE_BIN
     // create a temporary file to store the assembly code
-    char *tmpfile = strdup("/tmp/aled-XXXXXX.s");
-    mkstemp(tmpfile);
+    char *tmpasm, *tmpout;
+    tmpasm = new_temp_file("/tmp/aled-");
+    tmpout = new_temp_file("/tmp/aled-");    
 
-    FILE *f = fopen(tmpfile, "w");
+    FILE *f = fopen(tmpasm, "w");
     if (!f) {
         raise_andexit("Failed to create temporary file");
     }
@@ -82,16 +78,32 @@ void aled_compile_call(aled_args_t *args) {
     aled_compile(f, g_code);
     fclose(f);
 
-    pid_t pid = fork();
+    int status = exec_cmd((char *[]) {
+        "/bin/gcc",
+        "-no-pie",
+        "-m32",
+        "-x",
+        "assembler",
+        tmpasm,
+        "-o",
+        args->compile & 4 ? tmpout : "a.out",
+        NULL
+    });
 
-    if (pid == 0) {
-        execlp("gcc", "gcc", "-m32", "-no-pie", tmpfile, NULL);
-        raise_andexit("execlp() failed");
+    if (status == 0 && args->compile & 4) {
+        exec_cmd((char *[]) {
+            tmpout,
+            NULL
+        });
     }
 
-    waitpid(pid, NULL, 0);
-    remove(tmpfile);
-    free(tmpfile);
+    if (args->compile & 4)
+        del_temp_file(tmpout);
+    del_temp_file(tmpasm);
+
+    if (status != 0) {
+        raise_andexit("Failed to compile the binary");
+    }
 #else
     raise_andexit("Binary compilation is disabled");
 #endif

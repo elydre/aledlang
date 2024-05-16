@@ -1,8 +1,14 @@
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include <stdio.h>
 
 #include "aledlang.h"
+
+#ifdef ENABLE_BIN
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
 
 char *aled_read_file(const char *file) {
     FILE *f = fopen(file, "r");
@@ -140,3 +146,43 @@ void raise_andexit(const char *fmt, ...) {
     aled_cleanup();
     exit(1);
 }
+
+#ifdef ENABLE_BIN
+char *new_temp_file(const char *prefix) {
+    char *tmp = malloc(strlen(prefix) + 7);
+    strcpy(tmp, prefix);
+    strcat(tmp, "XXXXXX");
+
+    int fd = mkstemp(tmp);
+    if (fd == -1) {
+        free(tmp);
+        return NULL;
+    }
+
+    close(fd);
+
+    return tmp;
+}
+
+char *del_temp_file(char *file) {
+    unlink(file);
+    free(file);
+    return NULL;
+}
+
+int exec_cmd(char **cmd) {
+    pid_t pid = fork();
+    if (pid == -1)
+        return -1;
+
+    if (pid == 0) {
+        execv(cmd[0], cmd);
+        exit(1);
+    }
+
+    int status;
+    waitpid(pid, &status, 0);
+    return WEXITSTATUS(status);
+}
+
+#endif

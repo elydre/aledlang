@@ -15,6 +15,9 @@ void aled_print_help(void) {
         "\n  -d   Debug, print info at each step"
         "\n  -f   Fast mode (segmentation fault on error)"
         "\n  -h   Print this help message"
+#ifdef ENABLE_BIN
+        "\n  -r   Run compiled code"
+#endif
         "\n  -s   Debug + step by step execution"
         "\n  -v   Print version information"
     );
@@ -63,6 +66,10 @@ aled_args_t aled_process_args(int argc, char **argv) {
                     break;
 #ifdef ENABLE_BIN
                 case 'b':
+                    args.compile |= 2;
+                    break;
+                case 'r':
+                    args.compile |= 4;
                     args.compile |= 2;
                     break;
 #endif
