@@ -112,6 +112,8 @@ however I am easily influenceable 👯 and a friend asked me to implement them.
 |---------|-------------|---------------------------|-------------------------------------------|
 | `PRINT` | `KW_PRINT`  | print like `%u\n`         | `1 2    ` ` PRINT ` `1`       (2 printed) |
 | `CPUT`  | `KW_CPUT`   | print like `%c`           | `1 65   ` ` CPUT  ` `1`       (A printed) |
+| `INPUT` | `KW_INPUT`  | get number from stdin     | `1      ` ` INPUT ` `1 42`    (42 pushed) |
+| `CGET`  | `KW_CGET`   | get char from stdin       | `1      ` ` CGET  ` `1 97`   ('a' pushed) |
 | `GOTO`  | `KW_GOTO`   | jump to label             | `1 123  ` ` GOTO  ` `1`     (jump to 123) |
 | `JIF`   | `KW_JIF`    | jump to label if true     | `1 3 123` ` JIF   ` `1`     (jump to 123) |
 | `SET`   | `KW_SET`    | set memory                | `1 2 3  ` ` SET   ` `1`     (mem[3] <- 2) |
