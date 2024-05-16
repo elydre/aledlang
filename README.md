@@ -14,7 +14,7 @@ functional (it generates GNU assembly files and not directly .elf files).
 
 - `-b` (compl) Compile to elf i386 on the fly (requires `gcc`)
 - `-c` (compl) Print the generated assembly code to stdout
-- `-d` (intrp) Debug mode, print the stack at each step
+- `-d` (intrp) Print the stack and code position at each step
 - `-e` (intrp) Please read the lua documentation about this option
 - `-f` (intrp) Disable stack overflow / jump out of bounds checks
 - `-h` Print a help message in the console like every good program
