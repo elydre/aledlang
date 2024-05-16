@@ -20,12 +20,12 @@ functional (it generates GNU assembly files and not directly .elf files).
 - `-h` Print a help message in the console like every good program
 - `-r` (compl) Compile to elf i386 and run it (implies `-b`)
 - `-s` (intrp) Like `-d` but wait for a key press between each step
-- `-v` Dump version and don't give you bugger 🍔 like it's impossible
+- `-v` Dump version and don't give you a burger 🍔 as it's impossible
 
 ## Syntax
 
-The language was designed to be written on a single line 🪦, the number,
-keyword and operator must be separated by any non-null quantity of any
+The language was designed to be written on a single line 🪦. Number,
+keywords and operators must be separated by any non-null quantity of any
 whitespace.
 
 ### Pushs
@@ -95,7 +95,7 @@ position in the code, it is used by the `GOTO` and `JIF` keywords.
 ### Comments
 
 Comments are not recommended because they risk making the code less obscure,
-however I am easily influenced 👯 and a friend asked me to implement them.
+however I am easily influenceable 👯 and a friend asked me to implement them.
 
 ```
 [ PRINT 42 WITH TOO MANY COMMENTS ]
