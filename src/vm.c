@@ -39,6 +39,12 @@ void aled_run(uint32_t *code, int debug) {
                 printf("\e[92m%c\e[0m", POP());
                 fflush(stdout);
                 break;
+            case KW_INPUT:
+                scanf("%u", &g_stack[g_spos++]);
+                break;
+            case KW_CGET:
+                g_stack[g_spos++] = getchar();
+                break;
             case KW_JIF:
                 val = POP();
                 if (!POP())
@@ -200,6 +206,12 @@ void aled_run_fast(uint32_t *code) {
             case KW_CPUT:
                 printf("\e[92m%c\e[0m", g_stack[--g_spos]);
                 fflush(stdout);
+                break;
+            case KW_INPUT:
+                scanf("%u", &g_stack[g_spos++]);
+                break;
+            case KW_CGET:
+                g_stack[g_spos++] = getchar();
                 break;
             case KW_JIF:
                 g_spos -= 2;

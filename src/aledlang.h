@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "2.0.2"
+#define ALED_VERSION "2.1.0"
 
 #define JMP_COUNT 512
 #define VAL_COUNT 512
@@ -39,6 +39,8 @@ extern int g_spos;
 enum {
     KW_PRINT = FIRST_KW,
     KW_CPUT,
+    KW_INPUT,
+    KW_CGET,
     KW_JIF,
     KW_GOTO,
     KW_SET,

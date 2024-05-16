@@ -18,9 +18,23 @@ aled_ass_t aled_to_asm[] = {
     {
         KW_CPUT,
         "# KW_CPUT\n"
-        "pushl $cput_format\n"
-        "call printf\n"
-        "addl $8, %esp"
+        "call putchar\n"
+        "popl %eax"
+    },
+    {
+        KW_INPUT,
+        "# KW_INPUT\n"
+        "pushl $0\n"
+        "pushl %esp\n"
+        "pushl $input_format\n"
+        "call scanf\n"
+        "addl $8, %esp\n"
+    },
+    {
+        KW_CGET,
+        "# KW_CGET\n"
+        "call getchar\n"
+        "pushl %eax"
     },
     {KW_JIF, NULL},
     {
@@ -247,8 +261,8 @@ void aled_compile(FILE *f, uint32_t *code) {
         ".section .data\n"
         "print_format:\n"
         "  .asciz \"%u\\n\"\n"
-        "cput_format:\n"
-        "  .asciz \"%c\"\n"
+        "input_format:\n"
+        "  .asciz \"%u\"\n"
         "stack_base:\n"
         "  .int 0\n\n",
         f
@@ -274,8 +288,8 @@ void aled_compile(FILE *f, uint32_t *code) {
         ".section .text\n"
         ".globl main\n\n"
         "main:\n\n"
-        "  # init stack base\n"
-        "  movl %esp, stack_base\n\n",
+        "# init stack base\n"
+        "movl %esp, stack_base\n\n",
         f
     );
 

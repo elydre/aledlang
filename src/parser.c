@@ -7,6 +7,8 @@
 aled_kw_t g_aled_kws[] = {
     {"PRINT", KW_PRINT},
     {"CPUT",  KW_CPUT},
+    {"INPUT", KW_INPUT},
+    {"CGET",  KW_CGET},
     {"JIF",   KW_JIF},
     {"GOTO",  KW_GOTO},
     {"SET",   KW_SET},
