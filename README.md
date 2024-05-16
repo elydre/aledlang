@@ -82,7 +82,7 @@ position in the code, it is used by the `GOTO` and `JIF` keywords.
 
 ### Comments
 
-comments are not recommended because they risk making the code less obscure,
+Comments are not recommended because they risk making the code less obscure,
 however I am easily influenced and a friend asked me to implement them.
 
 ```
