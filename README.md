@@ -1,30 +1,30 @@
 # AledLang
 
-AledLang is a stupid programming language, this repo contains what
+AledLang is a stupid 🤹 programming language, this repo contains what
 is *- I hope -* the only tool to compile and debug it.
 
 This language is so difficult to use that programming an AledLang
 interpertor is simpler than making a hello world with it... Aled is
-the contraction of "à l'aide" in French which means "help" / "help me".
+the contraction of "à l'aide" in French which means "help" / "help me" 📣
 
 Originally, it is interpreted but a compiler for x86 in 32bit is now
 functional (it generates GNU assembly files and not directly .elf files).
 
 ## Compiler Features
 
-- `-b` (compl) Compile to elf i386 on the fly (requires `gcc`)
+- `-b` (compl) Compile to elf i386 on the fly 💾 (requires `gcc`)
 - `-c` (compl) Print the generated assembly code to stdout
 - `-d` (intrp) Print the stack and code position at each step
-- `-e` (intrp) Please read the lua documentation about this option
-- `-f` (intrp) Disable stack overflow / jump out of bounds checks
+- `-e` (intrp) Please 🛐 read the lua documentation about this option
+- `-f` (intrp) Disable stack overflow / jump out of bounds checks 🫣
 - `-h` Print a help message in the console like every good program
 - `-r` (compl) Compile to elf i386 and run it (implies `-b`)
 - `-s` (intrp) Like `-d` but wait for a key press between each step
-- `-v` Dump version and don't give you bugger like it's impossible
+- `-v` Dump version and don't give you bugger 🍔 like it's impossible
 
 ## Syntax
 
-The language was designed to be written on a single line, the number,
+The language was designed to be written on a single line 🪦, the number,
 keyword and operator must be separated by any non-null quantity of any
 whitespace.
 
@@ -44,7 +44,7 @@ we can also note charaters which will send their ascii value.
 - 65 is pushed (A ascii value)
 ```
 
-To simplify the push of string, we can note a sequence of charatere between
+To simplify 🥭 the push of string, we can note a sequence of charatere between
 double quote, which will push all the chars of the string with a \0 at the end.
 
 ```
@@ -63,7 +63,7 @@ double quote, which will push all the chars of the string with a \0 at the end.
 ### Stack
 
 The stack is a LIFO stack, the last element pushed is the first to be popped.
-Numbers pushed are 32bits integers.
+Numbers pushed are 32bits integers 🔮
 
 ```
 [ PRINT 42 AND 123 ]
@@ -78,7 +78,7 @@ Numbers pushed are 32bits integers.
 
 ### Labels
 
-A label is a number surrounded by parenthesis, it is used to represent a
+A label is a number surrounded 🙆‍♀️ by parenthesis, it is used to represent a
 position in the code, it is used by the `GOTO` and `JIF` keywords.
 
 ```
@@ -95,7 +95,7 @@ position in the code, it is used by the `GOTO` and `JIF` keywords.
 ### Comments
 
 Comments are not recommended because they risk making the code less obscure,
-however I am easily influenced and a friend asked me to implement them.
+however I am easily influenced 👯 and a friend asked me to implement them.
 
 ```
 [ PRINT 42 WITH TOO MANY COMMENTS ]
