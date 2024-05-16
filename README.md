@@ -10,6 +10,18 @@ the contraction of "à l'aide" in French which means "help" / "help me".
 Originally, it is interpreted but a compiler for x86 in 32bit is now
 functional (it generates GNU assembly files and not directly .elf files).
 
+## Compiler Features
+
+- `-b` (compl) Compile to elf i386 on the fly (requires `gcc`)
+- `-c` (compl) Print the generated assembly code to stdout
+- `-d` (intrp) Debug mode, print the stack at each step
+- `-e` (intrp) Please read the lua documentation about this option
+- `-f` (intrp) Disable stack overflow / jump out of bounds checks
+- `-h` Print a help message in the console like every good program
+- `-r` (compl) Compile to elf i386 and run it (implies `-b`)
+- `-s` (intrp) Like `-d` but wait for a key press between each step
+- `-v` Dump version and don't give you bugger like it's impossible
+
 ## Syntax
 
 The language was designed to be written on a single line, the number,
