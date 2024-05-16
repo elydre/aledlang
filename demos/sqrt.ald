@@ -1,0 +1,16 @@
+123456
+
+0
+(0)
+    DUP DUP *
+    SWAP SWAP3
+    DUP2 > 1 JIF
+    SWAP3 SWAP
+    POP
+    1 +
+    0 GOTO
+
+(1)
+SWAP3
+1 -
+PRINT
