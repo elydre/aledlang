@@ -14,12 +14,14 @@ functional (it generates GNU assembly files and not directly .elf files).
 
 - `-b` (compl) Compile to elf i386 on the fly 💾 (requires `gcc`)
 - `-c` (compl) Print the generated assembly code to stdout
+- `-r` (compl) Compile to elf i386 and run it (implies `-b`)
+
 - `-d` (intrp) Print the stack and code position at each step
 - `-e` (intrp) Please 🛐 read the lua documentation about this option
 - `-f` (intrp) Disable stack overflow / jump out of bounds checks 🫣
-- `-h` Print a help message in the console like every good program
-- `-r` (compl) Compile to elf i386 and run it (implies `-b`)
 - `-s` (intrp) Like `-d` but wait for a key press between each step
+
+- `-h` Print a help message in the console like every good program
 - `-v` Dump version and don't give you a burger 🍔 as it's impossible
 
 ## Syntax

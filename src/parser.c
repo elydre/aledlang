@@ -45,7 +45,7 @@ uint32_t *aled_parse(char *src) {
     for (int i = 0; i < len; i++) {
         char *tok = tokens[i];
         for (aled_kw_t *kw = g_aled_kws; kw->text; kw++) {
-            if (strcmp(tok, kw->text))
+            if (strcasecmp(tok, kw->text))
                 continue;
             *ptr++ = kw->key;
             tok = NULL;

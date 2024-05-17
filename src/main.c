@@ -121,6 +121,13 @@ void aled_start_shell(aled_args_t *args) {
         if (!g_code)
             continue;
         aled_run(g_code, args->debug);
+        if (!g_spos)
+            continue;
+        printf("\e[90m[ ");
+        for (int i = 0; i < g_spos; i++) {
+            printf("%d ", g_stack[i]);
+        }
+        printf("]\e[0m\n");
     }
     g_code = NULL;
 }
