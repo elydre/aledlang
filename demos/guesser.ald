@@ -1,32 +1,26 @@
 0   0 SET [min]
-100 1 SET [max]
+101 1 SET [max + 1]
 
 (0) [main loop]
     0 GET 1 GET + 2 / [push moy]
-    DUP PRINT
 
+    (5) DUP PRINT
     CGET CGET POP [get char]
-    
-    DUP 'y' == 1 JIF
-    DUP 'l' == 2 JIF
-    DUP 'u' == 3 JIF
 
-    "\nE" CPUT CPUT [error]
-    4 GOTO
+    DUP 'u' == 3 JIF
+    DUP 'l' == 2 JIF
+        'y' == 1 JIF
+
+    5 GOTO
+
+(2) POP [lower]
+    1 SET [update max]
+    0 GOTO
+
+(3) POP [upper]
+    0 SET [update min]
+    0 GOTO
 
 (1) [yes]
     "\n!GG" POP CPUT
     CPUT CPUT CPUT
-    4 GOTO
-
-(2) [lower]
-    POP
-    1 SET [update max]
-    0 GOTO
-
-(3) [upper]
-    POP
-    0 SET [update min]
-    0 GOTO
-
-(4) [end]
