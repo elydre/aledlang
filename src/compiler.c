@@ -271,16 +271,16 @@ void aled_compile(FILE *f, uint32_t *code) {
     if (need_jmp_table) {
         fprintf(f,
             "jump_table:\n"
-            "  .zero %u\n\n",
-            JMP_COUNT * 4
+            "   .fill %u, 4, 0\n\n",
+            JMP_COUNT
         );
     }
 
     if (does_need_val_table(code)) {
         fprintf(f,
             "val_table:\n"
-            "  .zero %u\n\n",
-            VAL_COUNT * 4
+            "   .fill %u, 4, 0\n\n",
+            VAL_COUNT
         );
     }
 
