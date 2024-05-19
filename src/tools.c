@@ -121,6 +121,7 @@ char *aled_read_line(const char *prompt) {
     read = getline(&line, &len, stdin);
     if (read == -1) {
         free(line);
+        puts("");
         return NULL;
     }
     return line;
