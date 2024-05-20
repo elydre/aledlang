@@ -12,9 +12,8 @@
 
 char *aled_read_file(const char *file) {
     FILE *f = fopen(file, "r");
-    if (!f) {
-        raise_andexit("Could not open file: %s", file);
-    }
+    if (!f)
+        return NULL;
 
     fseek(f, 0, SEEK_END);
     size_t size = ftell(f);
@@ -24,7 +23,7 @@ char *aled_read_file(const char *file) {
     if (!buf || fread(buf, 1, size, f) != size) {
         fclose(f);
         free(buf);
-        raise_andexit("Could not read file: %s", file);
+        return NULL;
     }
     buf[size] = '\0';
 
@@ -37,10 +36,10 @@ void wait_enter(void) {
     while (getchar() != '\n');
 }
 
-void print_code(uint32_t *ptr) {
+void print_code(uint32_t *code, uint32_t *ptr) {
     const char *kw;
 
-    for (uint32_t *p = g_code; *p != UINT32_MAX; p++) {
+    for (uint32_t *p = code; *p != UINT32_MAX; p++) {
         if (p == ptr)
             fputs("\033[31m", stdout);
         kw = aled_get_kw(*p);
@@ -131,8 +130,6 @@ void aled_cleanup(void) {
     free(g_stack);
     free(g_jmps);
     free(g_vals);
-    free(g_code);
-    free(g_src);
 }
 
 void raise_andexit(const char *fmt, ...) {

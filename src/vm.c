@@ -1,10 +1,13 @@
+#include <setjmp.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
 
 #include "aledlang.h"
 
-void aled_run_error(uint32_t *ptr, const char *fmt, ...) {
+jmp_buf g_jmpbuf;
+
+void aled_run_error(uint32_t *code, uint32_t *ptr, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
@@ -13,24 +16,28 @@ void aled_run_error(uint32_t *ptr, const char *fmt, ...) {
 
     fprintf(stderr, "\e[0m\n========================\n");
     fprintf(stderr, "INSTRUCTION:\n  ");
-    print_code(ptr);
+    print_code(code, ptr);
     fprintf(stderr, "STACK:\n  ");
     print_stack();
     fprintf(stderr, "========================\n");
 
-    aled_cleanup();
     va_end(args);
-    exit(1);
+
+    longjmp(g_jmpbuf, 1);
 }
 
-#define POP() (g_spos ? g_stack[--g_spos] : (aled_run_error(ptr, "Stack underflow"), 0))
+#define POP() (g_spos ? g_stack[--g_spos] : (aled_run_error(code, ptr, "Stack underflow"), 0))
 
-void aled_run(uint32_t *code, int debug) {
-    uint32_t *ptr = code;
+int aled_run(uint32_t *code, int debug) {
     uint32_t val, idx, a, b;
+    uint32_t *ptr = code;
+
+    if (setjmp(g_jmpbuf))
+        return 1;
+
     while (*ptr != UINT32_MAX) {
         if (debug)
-            print_code(ptr);
+            print_code(code, ptr);
         switch (*ptr) {
             case KW_PRINT:
                 printf("\e[92m%u\e[0m\n", POP());
@@ -50,20 +57,20 @@ void aled_run(uint32_t *code, int debug) {
                 if (!POP())
                     break;
                 if (g_jmps[val] == UINT32_MAX)
-                    aled_run_error(ptr, "Jump to non-existent label: %d", val);
+                    aled_run_error(code, ptr, "Jump to non-existent label: %d", val);
                 ptr = code + g_jmps[val] - 1;
                 break;
             case KW_GOTO:
                 val = POP();
                 if (g_jmps[val] == UINT32_MAX)
-                    aled_run_error(ptr, "Jump to non-existent label: %d", val);
+                    aled_run_error(code, ptr, "Jump to non-existent label: %d", val);
                 ptr = code + g_jmps[val] - 1;
                 break;
             case KW_SET:
                 idx = POP();
                 val = POP();
                 if (idx >= VAL_COUNT)
-                    aled_run_error(ptr, "Invalid index: %d", idx);
+                    aled_run_error(code, ptr, "Invalid index: %d", idx);
                 if (debug)
                     printf("SET: mem[%d] <= %d\n", idx, val);
                 g_vals[idx] = val;
@@ -71,7 +78,7 @@ void aled_run(uint32_t *code, int debug) {
             case KW_GET:
                 idx = POP();
                 if (idx >= VAL_COUNT)
-                    aled_run_error(ptr, "Invalid index: %d", idx);
+                    aled_run_error(code, ptr, "Invalid index: %d", idx);
                 if (debug)
                     printf("GET: mem[%d] => %d\n", idx, g_vals[idx]);
                 g_stack[g_spos++] = g_vals[idx];
@@ -81,15 +88,15 @@ void aled_run(uint32_t *code, int debug) {
                 break;
             case KW_DUP:
                 if (g_spos == 0)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos] = g_stack[g_spos - 1];
                 g_spos++;
                 break;
             case KW_DUP2:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 if (g_spos >= STACK_SIZE - 2)
-                    aled_run_error(ptr, "Stack overflow");
+                    aled_run_error(code, ptr, "Stack overflow");
                 g_stack[g_spos] = g_stack[g_spos - 2];
                 g_stack[g_spos + 1] = g_stack[g_spos - 1];
                 g_spos += 2;
@@ -102,7 +109,7 @@ void aled_run(uint32_t *code, int debug) {
                 break;
             case KW_SWAP3:
                 if (g_spos < 3)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 a = g_stack[g_spos - 1];
                 g_stack[g_spos - 1] = g_stack[g_spos - 3];
                 g_stack[g_spos - 3] = a;
@@ -117,67 +124,67 @@ void aled_run(uint32_t *code, int debug) {
                 break;
             case OP_ADD:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] += g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_SUB:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] -= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_MUL:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] *= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_DIV:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] /= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_MOD:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] %= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_EQ:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] == g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_NEQ:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] != g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_GT:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] > g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_LT:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] < g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_GTE:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] >= g_stack[g_spos - 1];
                 g_spos--;
                 break;
             case OP_LTE:
                 if (g_spos < 2)
-                    aled_run_error(ptr, "Stack underflow");
+                    aled_run_error(code, ptr, "Stack underflow");
                 g_stack[g_spos - 2] = g_stack[g_spos - 2] <= g_stack[g_spos - 1];
                 g_spos--;
                 break;
@@ -186,16 +193,18 @@ void aled_run(uint32_t *code, int debug) {
                 break;
         }
         if (g_spos >= STACK_SIZE)
-            aled_run_error(ptr, "Stack overflow");
+            aled_run_error(code, ptr, "Stack overflow");
         if (debug)
             print_stack();
         if (debug == 2)
             wait_enter();
         ptr++;
     }
+
+    return 0;
 }
 
-void aled_run_fast(uint32_t *code) {
+int aled_run_fast(uint32_t *code) {
     uint32_t *ptr = code;
     uint32_t a;
     while (*ptr != UINT32_MAX) {
@@ -309,4 +318,6 @@ void aled_run_fast(uint32_t *code) {
         }
         ptr++;
     }
+
+    return 0;
 }

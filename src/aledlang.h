@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 
-#define ALED_VERSION "2.1.1"
+#define ALED_VERSION "2.2.0"
 
 #define JMP_COUNT 512
 #define VAL_COUNT 512
 #define STACK_SIZE 1024 // don't change compiled output
+
+#define raise_error(fmt, ...) fprintf(stderr, "\e[31mAledLang: Error: " fmt "\e[0m\n", ##__VA_ARGS__);
 
 typedef struct {
     const char *text;
@@ -26,13 +28,12 @@ extern aled_kw_t g_aled_kws[];
 
 extern uint32_t *g_jmps;
 extern uint32_t *g_vals;
-extern uint32_t *g_code;
 
 extern uint32_t *g_stack;
-extern char *g_src;
 extern int g_spos;
 
 #define FIRST_KW (UINT32_MAX - 64)
+
 
 enum {
     KW_PRINT = FIRST_KW,
@@ -68,16 +69,14 @@ aled_args_t aled_process_args(int argc, char **argv);
 
 
 // compiler.c
-void aled_compile(FILE *f, uint32_t *code);
+int aled_compile(FILE *f, uint32_t *code);
 
 // lexer.c
 char **aled_lexe(char *src, int *len);
 void free_token(char **tokens);
 
-
 // parser.c
 uint32_t *aled_parse(char *src);
-
 
 // tools.c
 char *aled_read_file(const char *file);
@@ -85,7 +84,7 @@ void raise_andexit(const char *fmt, ...);
 char *aled_read_line(const char *prompt);
 void wait_enter(void);
 
-void print_code(uint32_t *ptr);
+void print_code(uint32_t *code, uint32_t *ptr);
 void print_stack(void);
 
 const char *aled_get_kw(uint32_t kw);
@@ -102,8 +101,7 @@ int exec_cmd(char **cmd);
 #endif
 
 // vm.c
-void aled_run(uint32_t *code, int debug);
-void aled_run_fast(uint32_t *code);
-
+int aled_run(uint32_t *code, int debug);
+int aled_run_fast(uint32_t *code);
 
 #endif

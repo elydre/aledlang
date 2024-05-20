@@ -62,7 +62,8 @@ char **aled_lexe(char *src, int *len) {
                 i++;
             if (!src[i]) {
                 free_token(tokens);
-                raise_andexit("Unterminated comment");
+                raise_error("AledLang: Error: Unterminated comment");
+                return NULL;
             }
             token_start = i + 1;
         } else if (src[i] == '\'') { // char
@@ -82,7 +83,8 @@ char **aled_lexe(char *src, int *len) {
                     src[i + 1] = '\'';
                 else {
                     free_token(tokens);
-                    raise_andexit("Invalid escape sequence: %c", src[i + 2]);
+                    raise_error("AledLang: Error: Invalid escape sequence: %c", src[i + 2]);
+                    return NULL;
                 }
                 src[i + 2] = '\'';
                 tokens = append_to_tokens(tokens, &size, src + token_start, 3);
@@ -95,7 +97,8 @@ char **aled_lexe(char *src, int *len) {
             } else {
                 close_next(src, i);
                 free_token(tokens);
-                raise_andexit("Invalid char: %s", src + token_start);
+                raise_error("AledLang: Error: Invalid char: %s", src + token_start);
+                return NULL;
             }
         } else if (src[i] == '"') { // string
             if (i > token_start)
@@ -106,7 +109,8 @@ char **aled_lexe(char *src, int *len) {
                 if (src[i] == '\\') {
                     if (!src[i + 1]) {
                         free_token(tokens);
-                        raise_andexit("Unterminated string");
+                        raise_error("AledLang: Error: Unterminated string");
+                        return NULL;
                     }
                     if (src[i + 1] == 'n')
                         src[i] = '\n';
@@ -120,7 +124,8 @@ char **aled_lexe(char *src, int *len) {
                         src[i] = '"';
                     else {
                         free_token(tokens);
-                        raise_andexit("Invalid escape sequence: %c", src[i + 1]);
+                        raise_error("AledLang: Error: Invalid escape sequence: %c", src[i + 1]);
+                        return NULL;
                     }
                     for (int j = i + 1; src[j]; j++)
                         src[j] = src[j + 1];
@@ -134,7 +139,8 @@ char **aled_lexe(char *src, int *len) {
             }
             if (!src[i]) {
                 free_token(tokens);
-                raise_andexit("Unterminated string");
+                raise_error("AledLang: Error: Unterminated string");
+                return NULL;
             }
             tokens = append_to_tokens(tokens, &size, "0", 1);
             token_start = i + 1;

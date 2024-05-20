@@ -251,7 +251,7 @@ void add_jmp_init(FILE *f) {
     }
 }
 
-void aled_compile(FILE *f, uint32_t *code) {
+int aled_compile(FILE *f, uint32_t *code) {
     uint32_t *ptr;
     int found;
 
@@ -362,4 +362,6 @@ void aled_compile(FILE *f, uint32_t *code) {
         "  ret\n",
         f
     );
+
+    return 0;
 }

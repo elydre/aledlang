@@ -40,6 +40,10 @@ uint32_t *aled_parse(char *src) {
 
     tokens = aled_lexe(src, &len);
 
+    if (!tokens) {
+        return NULL;
+    }
+
     ptr = code = malloc((len + 1) * sizeof(uint32_t));
 
     for (int i = 0; i < len; i++) {
@@ -60,16 +64,16 @@ uint32_t *aled_parse(char *src) {
         else {
             val = atos_error(tok);
             if (val == UINT32_MAX) {
-                fprintf(stderr, "AledLang: Error: Invalid token: %s\n", tok);
+                raise_error("Invalid token: %s", tok);
                 free_token(tokens);
                 free(code);
-                raise_andexit(NULL);
+                return NULL;
             }
             if (g_jmps[val] != UINT32_MAX) {
-                fprintf(stderr, "AledLang: Error: Invalid token: %s\n", tok);
+                raise_error("Invalid token: %s", tok);
                 free_token(tokens);
                 free(code);
-                raise_andexit(NULL);
+                return NULL;
             }
             g_jmps[val] = ptr - code;
         }

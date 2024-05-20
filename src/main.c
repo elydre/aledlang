@@ -6,11 +6,10 @@
 
 uint32_t *g_jmps;
 uint32_t *g_vals;
-uint32_t *g_code;
 
 uint32_t *g_stack;
-char *g_src;
 int g_spos;
+
 
 void aled_init(void) {
     g_vals = calloc(VAL_COUNT, sizeof(uint32_t));
@@ -19,63 +18,75 @@ void aled_init(void) {
     g_jmps = malloc(JMP_COUNT * sizeof(uint32_t));
     memset(g_jmps, UINT32_MAX, JMP_COUNT * sizeof(uint32_t));
 
-    g_code = NULL;
     g_spos = 0;
 }
 
-void aled_execute(aled_args_t *args) {
+int aled_execute(aled_args_t *args) {
+    uint32_t *code;
+    char *src;
+    int ret;
+
     if (args->file) {
-        g_src = aled_read_file(args->file);
+        src = aled_read_file(args->file);
     } else {
-        g_src = strdup(args->oneline);
+        src = strdup(args->oneline);
     }
 
-    g_code = aled_parse(g_src);
-    free(g_src);
-    g_src = NULL;
+    code = aled_parse(src);
+    free(src);
 
-    if (!g_code) {
-        return;
-    }
+    if (!code)
+        return 1;
 
     if (args->fast) {
-        aled_run_fast(g_code);
+        ret = aled_run_fast(code);
     } else {
-        aled_run(g_code, args->debug);
+        ret = aled_run(code, args->debug);
     }
+
+    free(code);
+    return ret;
 }
 
-void aled_compile_call(aled_args_t *args) {
-    g_src = aled_read_file(args->file);
+int aled_compile_call(aled_args_t *args) {
+    uint32_t *code;
+    char *src;
 
-    g_code = aled_parse(g_src);
-    free(g_src);
-    g_src = NULL;
+    src = aled_read_file(args->file);
 
-    if (!g_code) {
-        return;
+    if (!src) {
+        return 1;
+    }
+
+    code = aled_parse(src);
+    free(src);
+
+    if (!code) {
+        return 1;
     }
 
     if (args->compile & 1) {
-        aled_compile(stdout, g_code);
+        aled_compile(stdout, code);
     }
 
     if (!(args->compile & 2)) {
-        return;
+        free(code);
+        return 0;
     }
 
 #ifdef ENABLE_BIN
     // create a temporary file to store the assembly code
     char *tmpasm, *tmpout;
+    if (args->compile & 4)
+        tmpout = new_temp_file("/tmp/aled-");    
     tmpasm = new_temp_file("/tmp/aled-");
-    tmpout = new_temp_file("/tmp/aled-");    
 
     FILE *f = fopen(tmpasm, "w");
     if (!f) {
         raise_andexit("Failed to create temporary file");
     }
 
-    aled_compile(f, g_code);
+    aled_compile(f, code);
     fclose(f);
 
     int status = exec_cmd((char *[]) {
@@ -101,26 +112,31 @@ void aled_compile_call(aled_args_t *args) {
         del_temp_file(tmpout);
     del_temp_file(tmpasm);
 
-    if (status != 0) {
-        raise_andexit("Failed to compile the binary");
-    }
+    free(code);
+    return status;
 #else
     raise_andexit("Binary compilation is disabled");
+    return 1;
 #endif
 }
 
-void aled_start_shell(aled_args_t *args) {
+int aled_start_shell(aled_args_t *args) {
     char *line = NULL;
+    uint32_t *code;
 
     while (1) {
-        line = aled_read_line("aled> ");
+        // cleanup jump table
+        memset(g_jmps, UINT32_MAX, JMP_COUNT * sizeof(uint32_t));
+        line = aled_read_line("aled ~ ");
         if (!line)
             break;
-        g_code = aled_parse(line);
+        code = aled_parse(line);
         free(line);
-        if (!g_code)
+        if (!code)
             continue;
-        aled_run(g_code, args->debug);
+        if (aled_run(code, args->debug))
+            g_spos = 0;
+        free(code);
         if (!g_spos)
             continue;
         printf("\e[90m[ ");
@@ -129,11 +145,12 @@ void aled_start_shell(aled_args_t *args) {
         }
         printf("]\e[0m\n");
     }
-    g_code = NULL;
+    return 0;
 }
 
 int main(int argc, char **argv) {
     aled_args_t args;
+    int ret = 0;
 
     aled_init();
 
@@ -152,13 +169,13 @@ int main(int argc, char **argv) {
     }
 
     if (args.compile) {
-        aled_compile_call(&args);
+        ret = aled_compile_call(&args);
     } else if (!args.file && !args.oneline) {
-        aled_start_shell(&args);
+        ret = aled_start_shell(&args);
     } else {
-        aled_execute(&args);
+        ret = aled_execute(&args);
     }
 
     aled_cleanup();
-    return 0;
+    return ret;
 }
